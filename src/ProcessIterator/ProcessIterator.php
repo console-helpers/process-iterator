@@ -25,12 +25,12 @@ use Symfony\Component\Process\Process;
  *   );
  *
  *   foreach (new ProcessIterator($processes) as $key => $process) {
- *     // IMPORTANT: keys are preserved but the order of elements is not. This
- *     // construct iterates over the processes in the order they are executed, so the
- *     // fastest process is the one you'll get first. This allows you to start
- *     // doing followup processing as soon as possible.
+ *     // IMPORTANT: Keys are preserved, but the order of elements is not.
+ *     // Iteration is done over the processes in the order they are executed,
+ *     // so the fastest process is the one you'll get first. This allows you
+ *     // to start doing followup processing as soon as possible.
  *
- *     $err = $process->getErrorOutput();
+ *     $stderr = $process->getErrorOutput();
  *     $stdout = $process->getOutput();
  *     do_some_processing($stdout);
  *   }
