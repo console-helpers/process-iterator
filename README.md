@@ -33,6 +33,7 @@ $processes = array(
 	'c.txt' => new Process('wc -c c.txt'),
 );
 
+
 // All of the processes will be started at once, 
 // when "foreach" line is executed.
 $process_iterator = new ProcessIterator($processes);
@@ -42,6 +43,7 @@ foreach ($process_iterator as $key => $process) {
 	$stdout = $process->getOutput();
 	do_some_processing($stdout);
 }
+
 
 // Will only run 2 processes in parallel at a time.
 $process_iterator = new ProcessIterator($processes);
@@ -53,10 +55,12 @@ foreach ($process_iterator as $key => $process) {
 	do_some_processing($stdout);
 }
 
+
 // Will run all processes in parallel. The $processes 
 // array can be inspected later to see execution results.
 $process_iterator = new ProcessIterator($processes);
 $process_iterator->runAll();
+
 
 // Allows to add more processes in real time as they 
 // are processed.
@@ -75,6 +79,7 @@ foreach ($process_iterator as $key => $process) {
 	}
 }
 
+
 // Show "processing ..." message at regular intervals 
 // if processes fail to finish in a given time.
 $process_iterator = new ProcessIterator($processes);
@@ -83,6 +88,24 @@ $process_iterator->setUpdateInterval(1);
 foreach ($process_iterator as $key => $process) {
 	if ($process === null) {
 		echo "Still working...\n";
+	}
+	else {
+		$stderr = $process->getErrorOutput();
+		$stdout = $process->getOutput();
+		do_some_processing($stdout);
+	}
+}
+
+
+// Safe timed out process detection.
+// The "ProcessFailedException" exception is caught and 
+// available via "getException" method for developer to 
+// act on it (e.g. re-add timed out process back to queue).
+$process_iterator = new ProcessIterator($processes);
+
+foreach ($process_iterator as $key => $process) {
+	if ( $process_iterator->getException() ) {
+		echo "The $key process timed out\n";
 	}
 	else {
 		$stderr = $process->getErrorOutput();
