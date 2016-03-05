@@ -120,13 +120,15 @@ class ProcessIterator implements \Iterator
 	/**
 	 * Block until all processes have executed.
 	 *
-	 * @return void
+	 * @return self
 	 */
 	public function runAll()
 	{
 		foreach ( $this as $process ) {
 			$process->wait();
 		}
+
+		return $this;
 	}
 
 	/**
@@ -166,8 +168,8 @@ class ProcessIterator implements \Iterator
 	/**
 	 * Set a maximum amount of time you want to wait before the iterator will
 	 * yield a result. If no process has executed yet, the iterator will yield
-	 * null for key and value. Among other potential uses, you can use this to
-	 * show some busy indicator:
+	 * empty string for key and null for value. Among other potential uses, you
+	 * can use this to show some busy indicator:
 	 *   $processes = (new ProcessIterator($processes))
 	 *     ->setUpdateInterval(1);
 	 *   foreach ($processes as $process) {
@@ -247,11 +249,6 @@ class ProcessIterator implements \Iterator
 				$process = $this->processes[$process_key];
 
 				try {
-					if ( $this->getProcessException($process_key) ) {
-						$executed_index = $index;
-						continue;
-					}
-
 					$process->checkTimeout();
 
 					if ( $process->isTerminated() ) {
@@ -306,15 +303,11 @@ class ProcessIterator implements \Iterator
 	/**
 	 * Gets exception, associated with a process.
 	 *
-	 * @param mixed $key Process key.
-	 *
 	 * @return \Exception|null
 	 */
-	public function getProcessException($key = null)
+	public function getProcessException()
 	{
-		if ( $key === null ) {
-			$key = $this->key();
-		}
+		$key = $this->key();
 
 		return isset($this->exceptions[$key]) ? $this->exceptions[$key] : null;
 	}
@@ -341,7 +334,8 @@ class ProcessIterator implements \Iterator
 	public function key()
 	{
 		if ( $this->isTimeout ) {
-			return null;
+			// Returning "null" only works since PHP 5.5, so return empty string instead.
+			return '';
 		}
 
 		return $this->key;
