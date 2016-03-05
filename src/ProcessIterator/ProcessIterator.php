@@ -83,7 +83,7 @@ class ProcessIterator implements \Iterator
 	/**
 	 * Maximal amount of time to wait before iterator will yield the result.
 	 *
-	 * @var integer
+	 * @var float
 	 */
 	protected $timeout;
 
