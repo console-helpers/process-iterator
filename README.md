@@ -1,7 +1,7 @@
 # ProcessIterator
 
 [![Build Status](https://travis-ci.org/console-helpers/process-iterator.svg?branch=master)](https://travis-ci.org/console-helpers/process-iterator)
-[![Coverage Status](https://coveralls.io/repos/console-helpers/process-iterator/badge.svg?branch=master&service=github)](https://coveralls.io/github/console-helpers/process-iterator?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/console-helpers/process-iterator/badge.svg?branch=master)](https://coveralls.io/github/console-helpers/process-iterator?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/console-helpers/process-iterator/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/console-helpers/process-iterator/?branch=master)
 
 
@@ -34,7 +34,7 @@ $processes = array(
 );
 
 
-// All of the processes will be started at once, 
+// All of the processes will be started at once,
 // when "foreach" line is executed.
 $process_iterator = new ProcessIterator($processes);
 
@@ -56,13 +56,13 @@ foreach ($process_iterator as $key => $process) {
 }
 
 
-// Will run all processes in parallel. The $processes 
+// Will run all processes in parallel. The $processes
 // array can be inspected later to see execution results.
 $process_iterator = new ProcessIterator($processes);
 $process_iterator->runAll();
 
 
-// Allows to add more processes in real time as they 
+// Allows to add more processes in real time as they
 // are processed.
 $process_iterator = new ProcessIterator($processes);
 
@@ -80,7 +80,7 @@ foreach ($process_iterator as $key => $process) {
 }
 
 
-// Show "processing ..." message at regular intervals 
+// Show "processing ..." message at regular intervals
 // if processes fail to finish in a given time.
 $process_iterator = new ProcessIterator($processes);
 $process_iterator->setUpdateInterval(1);
@@ -98,8 +98,8 @@ foreach ($process_iterator as $key => $process) {
 
 
 // Safe timed out process detection.
-// The "ProcessFailedException" exception is caught and 
-// available via "getException" method for developer to 
+// The "ProcessFailedException" exception is caught and
+// available via "getException" method for developer to
 // act on it (e.g. re-add timed out process back to queue).
 $process_iterator = new ProcessIterator($processes);
 
