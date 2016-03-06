@@ -34,8 +34,7 @@ $processes = array(
 );
 
 
-// All of the processes will be started at once,
-// when "foreach" line is executed.
+// All of the processes will be started at once, when "foreach" line is executed.
 $process_iterator = new ProcessIterator($processes);
 
 foreach ($process_iterator as $key => $process) {
@@ -56,14 +55,13 @@ foreach ($process_iterator as $key => $process) {
 }
 
 
-// Will run all processes in parallel. The $processes
-// array can be inspected later to see execution results.
+// Will run all processes in parallel. The $processes array can be inspected later 
+// to see execution results.
 $process_iterator = new ProcessIterator($processes);
 $process_iterator->runAll();
 
 
-// Allows to add more processes in real time as they
-// are processed.
+// Allows to add more processes in real time as they are processed.
 $process_iterator = new ProcessIterator($processes);
 
 foreach ($process_iterator as $key => $process) {
@@ -80,8 +78,8 @@ foreach ($process_iterator as $key => $process) {
 }
 
 
-// Show "processing ..." message at regular intervals
-// if processes fail to finish in a given time.
+// Show "processing ..." message at if no process was finished executing after 
+// given time has passed. This can happen several times as well.
 $process_iterator = new ProcessIterator($processes);
 $process_iterator->setUpdateInterval(1);
 
@@ -97,15 +95,20 @@ foreach ($process_iterator as $key => $process) {
 }
 
 
-// Safe timed out process detection.
-// The "ProcessFailedException" exception is caught and
-// available via "getException" method for developer to
-// act on it (e.g. re-add timed out process back to queue).
+// Safe process exception detection. When exception happens during process 
+// execution it's recorded and that process is immediately yielded. Then
+// the $process_iterator->getProcessException() method can be used to 
+// handle it gracefully (e.g. re-add back to queue).
 $process_iterator = new ProcessIterator($processes);
 
 foreach ($process_iterator as $key => $process) {
-	if ( $process_iterator->getException() ) {
-		echo "The $key process timed out\n";
+	$process_exception = $process_iterator->getException();
+
+	if ( $process_exception instanceof ProcessTimedOutException ) {
+		echo "The $key process timed out.\n";
+	}
+	elseif ( $process_exception instanceof ProcessFailedException ) {
+		echo "The $key process has failed.\n";
 	}
 	else {
 		$stderr = $process->getErrorOutput();

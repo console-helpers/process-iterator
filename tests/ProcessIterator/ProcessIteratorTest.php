@@ -38,6 +38,78 @@ class ProcessIteratorTest extends \PHPUnit_Framework_TestCase
 		new ProcessIterator(array($process));
 	}
 
+	public function testProcessFailureIsIgnoredWithoutMustRun()
+	{
+		/** @var Process[] $processes */
+		$processes = array(
+			new Process('exit 64'),
+			new Process('exit 0'),
+		);
+
+		$iterator = new ProcessIterator($processes);
+		$exit_codes = array();
+
+		foreach ( $iterator as $process ) {
+			$this->assertNull($iterator->getProcessException(), 'No exception on process failure.');
+			$exit_codes[] = $process->getExitCode();
+		}
+
+		$this->assertCount(count($processes), $exit_codes, 'All processes were executed.');
+
+		// Order of results isn't guaranteed, because execution happens in parallel.
+		$this->assertContains(0, $exit_codes, 'The successful process was executed.');
+		$this->assertContains(64, $exit_codes, 'The failed process was executed.');
+	}
+
+	public function testProcessFailureIsRecordedWithMustRun()
+	{
+		/** @var Process[] $processes */
+		$processes = array(
+			new Process('exit 64'),
+			new Process('exit 0'),
+		);
+
+		$iterator = new ProcessIterator($processes, true);
+		$processes_executed = 0;
+
+		foreach ( $iterator as $index => $process ) {
+			if ( $index === 0 ) {
+				$this->assertEquals(64, $process->getExitCode());
+				$this->assertInstanceOf(
+					'Symfony\Component\Process\Exception\ProcessFailedException',
+					$iterator->getProcessException()
+				);
+			}
+			else {
+				$this->assertEquals(0, $process->getExitCode());
+				$this->assertNull($iterator->getProcessException(), 'No exception on process failure.');
+			}
+
+			$processes_executed++;
+		}
+
+		$this->assertEquals(count($processes), $processes_executed, 'All processes were executed.');
+	}
+
+	public function testNoProcessFailuresWithMustRun()
+	{
+		/** @var Process[] $processes */
+		$processes = array(
+			new Process('echo "A"'),
+			new Process('echo "B"'),
+		);
+
+		$iterator = new ProcessIterator($processes, true);
+		$processes_executed = 0;
+
+		foreach ( $iterator as $index => $process ) {
+			$this->assertNull($iterator->getProcessException(), 'No exception on process success.');
+			$processes_executed++;
+		}
+
+		$this->assertEquals(count($processes), $processes_executed, 'All processes were executed.');
+	}
+
 	/**
 	 * @medium
 	 */
