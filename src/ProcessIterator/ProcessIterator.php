@@ -239,6 +239,7 @@ class ProcessIterator implements \Iterator
 	 * Move forward to next element.
 	 *
 	 * @return void
+	 * @throws ProcessFailedException When processes finished with non-zero exit code.
 	 */
 	public function next()
 	{
