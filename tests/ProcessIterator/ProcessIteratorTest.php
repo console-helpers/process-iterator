@@ -32,7 +32,7 @@ class ProcessIteratorTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testCreateWithRunningProcess()
 	{
-		$process = new Process(defined('HHVM_VERSION') ? 'sleep 1' : 'echo 1');
+		$process = new Process('sleep 1');
 		$process->start();
 
 		new ProcessIterator(array($process));
