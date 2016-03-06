@@ -11,6 +11,7 @@
 namespace ConsoleHelpers\ProcessIterator;
 
 
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 /**
@@ -60,6 +61,13 @@ class ProcessIterator implements \Iterator
 	protected $processes = array();
 
 	/**
+	 * All of the processes must be executed successfully.
+	 *
+	 * @var boolean
+	 */
+	protected $mustRun = false;
+
+	/**
 	 * Last exception, thrown by each process.
 	 *
 	 * @var \Exception[]
@@ -97,11 +105,12 @@ class ProcessIterator implements \Iterator
 	/**
 	 * Create a new iterator over a list of processes.
 	 *
-	 * @param array $processes List of processes to execute.
+	 * @param array   $processes List of processes to execute.
+	 * @param boolean $must_run  All of the processes must be executed successfully.
 	 *
 	 * @throws \InvalidArgumentException When unknown elements are present in $processes array.
 	 */
-	public function __construct(array $processes)
+	public function __construct(array $processes, $must_run = false)
 	{
 		$filtered_processes = array_filter($processes, function ($process) {
 			return ($process instanceof Process) && !$process->isRunning();
@@ -115,6 +124,7 @@ class ProcessIterator implements \Iterator
 		}
 
 		$this->processes = $processes;
+		$this->mustRun = $must_run;
 	}
 
 	/**
@@ -252,6 +262,11 @@ class ProcessIterator implements \Iterator
 					$process->checkTimeout();
 
 					if ( $process->isTerminated() ) {
+						// Mimics behavior of "Process::mustRun" method.
+						if ( $this->mustRun && $process->getExitCode() !== 0 ) {
+							throw new ProcessFailedException($process);
+						}
+
 						if ( $executed_index === null ) {
 							$executed_index = $index;
 						}

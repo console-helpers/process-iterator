@@ -4,7 +4,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-...
+- Allow operating in mode, where all of processes must be executed successfully (exit code is 0).
 
 ### Changed
 ...
