@@ -2,7 +2,7 @@
 	"name": "console-helpers/process-iterator",
 	"description": "Sequential way to run Symfony Processes in parallel",
 	"keywords": ["symfony", "process", "iterator", "parallel"],
-	"license": "BSD 3-Clause",
+	"license": "BSD-3-Clause",
 	"authors": [
 		{
 			"name": "Alexander Obuhovich",
