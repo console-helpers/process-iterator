@@ -40,7 +40,7 @@ class ProcessIteratorTest extends TestCase
 		$message .= '"\Symfony\Component\Process\Process" class.';
 		$this->expectExceptionMessage($message);
 
-		$process = $this->createProcess('sleep 1');
+		$process = $this->createProcess('SLEEP', array('sleep_interval' => 1));
 		$process->start();
 
 		new ProcessIterator(array($process));
@@ -50,8 +50,8 @@ class ProcessIteratorTest extends TestCase
 	{
 		/** @var Process[] $processes */
 		$processes = array(
-			$this->createProcess('exit 64'),
-			$this->createProcess('exit 0'),
+			$this->createProcess('EXIT', array('exit_code' => 64)),
+			$this->createProcess('EXIT', array('exit_code' => 0)),
 		);
 
 		$iterator = new ProcessIterator($processes);
@@ -73,8 +73,8 @@ class ProcessIteratorTest extends TestCase
 	{
 		/** @var Process[] $processes */
 		$processes = array(
-			$this->createProcess('exit 64'),
-			$this->createProcess('exit 0'),
+			$this->createProcess('EXIT', array('exit_code' => 64)),
+			$this->createProcess('EXIT', array('exit_code' => 0)),
 		);
 
 		$iterator = new ProcessIterator($processes, true);
@@ -103,8 +103,8 @@ class ProcessIteratorTest extends TestCase
 	{
 		/** @var Process[] $processes */
 		$processes = array(
-			$this->createProcess('echo "A"'),
-			$this->createProcess('echo "B"'),
+			$this->createProcess('OUTPUT', array('output_text' => 'A')),
+			$this->createProcess('OUTPUT', array('output_text' => 'B')),
 		);
 
 		$iterator = new ProcessIterator($processes, true);
@@ -125,9 +125,9 @@ class ProcessIteratorTest extends TestCase
 	{
 		/** @var Process[] $processes */
 		$processes = array(
-			$this->createProcess('echo 1; sleep 1'),
-			$this->createProcess('echo 2; sleep 1'),
-			$this->createProcess('echo 3; sleep 1'),
+			$this->createProcess('OUTPUT_AND_SLEEP', array('output_text' => '1', 'sleep_interval' => 1)),
+			$this->createProcess('OUTPUT_AND_SLEEP', array('output_text' => '2', 'sleep_interval' => 1)),
+			$this->createProcess('OUTPUT_AND_SLEEP', array('output_text' => '3', 'sleep_interval' => 1)),
 		);
 
 		$iterator = new ProcessIterator($processes);
@@ -148,8 +148,8 @@ class ProcessIteratorTest extends TestCase
 	 */
 	public function testAddProcessSuccess($in_key1, $out_key1, $output1, $in_key2, $out_key2, $output2)
 	{
-		$process1 = $this->createProcess('echo "' . $output1 . '"');
-		$process2 = $this->createProcess('echo "' . $output2 . '"');
+		$process1 = $this->createProcess('OUTPUT', array('output_text' => $output1));
+		$process2 = $this->createProcess('OUTPUT', array('output_text' => $output2));
 
 		$processes = isset($in_key1) ? array($in_key1 => $process1) : array($process1);
 		$iterator = new ProcessIterator($processes);
@@ -185,7 +185,7 @@ class ProcessIteratorTest extends TestCase
 	 */
 	public function testAddProcessFailure($existing_key, $add_key)
 	{
-		$process1 = $this->createProcess('echo "A"');
+		$process1 = $this->createProcess('OUTPUT', array('output_text' => 'A'));
 		$processes = isset($existing_key) ? array($existing_key => $process1) : array($process1);
 		$iterator = new ProcessIterator($processes);
 
@@ -210,9 +210,9 @@ class ProcessIteratorTest extends TestCase
 	{
 		/** @var Process[] $processes */
 		$processes = array(
-			$this->createProcess('echo "A"; sleep 2'),
-			$this->createProcess('echo "B"; sleep 3'),
-			$this->createProcess('echo "C"; sleep 4'),
+			$this->createProcess('OUTPUT_AND_SLEEP', array('output_text' => 'A', 'sleep_interval' => 2)),
+			$this->createProcess('OUTPUT_AND_SLEEP', array('output_text' => 'B', 'sleep_interval' => 3)),
+			$this->createProcess('OUTPUT_AND_SLEEP', array('output_text' => 'C', 'sleep_interval' => 4)),
 		);
 
 		$iterator = new ProcessIterator($processes);
@@ -240,10 +240,10 @@ class ProcessIteratorTest extends TestCase
 	{
 		/** @var Process[] $processes */
 		$processes = array(
-			'A' => $this->createProcess('echo "A"; sleep 1'),
-			'B' => $this->createProcess('echo "B"; sleep 2'),
-			'C' => $this->createProcess('echo "C"; sleep 3'),
-			'D' => $this->createProcess('echo "D"; sleep 4'),
+			'A' => $this->createProcess('OUTPUT_AND_SLEEP', array('output_text' => 'A', 'sleep_interval' => 1)),
+			'B' => $this->createProcess('OUTPUT_AND_SLEEP', array('output_text' => 'B', 'sleep_interval' => 2)),
+			'C' => $this->createProcess('OUTPUT_AND_SLEEP', array('output_text' => 'C', 'sleep_interval' => 3)),
+			'D' => $this->createProcess('OUTPUT_AND_SLEEP', array('output_text' => 'D', 'sleep_interval' => 4)),
 		);
 
 		$iterator = new ProcessIterator($processes);
@@ -309,9 +309,9 @@ class ProcessIteratorTest extends TestCase
 	public function testFastestProcessReturnedFirst()
 	{
 		$processes = array(
-			$this->createProcess('sleep 3; echo "C"'),
-			$this->createProcess('sleep 2; echo "B"'),
-			$this->createProcess('sleep 1; echo "A"'),
+			$this->createProcess('SLEEP_AND_OUTPUT', array('output_text' => 'C', 'sleep_interval' => 3)),
+			$this->createProcess('SLEEP_AND_OUTPUT', array('output_text' => 'B', 'sleep_interval' => 2)),
+			$this->createProcess('SLEEP_AND_OUTPUT', array('output_text' => 'A', 'sleep_interval' => 1)),
 		);
 
 		$iterator = new ProcessIterator($processes);
@@ -330,10 +330,10 @@ class ProcessIteratorTest extends TestCase
 	 */
 	public function testTimeouts()
 	{
-		$long_process = $this->createProcess('sleep 20');
+		$long_process = $this->createProcess('SLEEP', array('sleep_interval' => 20));
 		$long_process->setTimeout(1);
 
-		$normal_process = $this->createProcess('sleep 1');
+		$normal_process = $this->createProcess('SLEEP', array('sleep_interval' => 1));
 
 		$iterator = new ProcessIterator(array('long' => $long_process, 'normal' => $normal_process));
 
@@ -353,18 +353,38 @@ class ProcessIteratorTest extends TestCase
 	/**
 	 * Creates a process.
 	 *
-	 * @param $argument Argument.
+	 * @param string  $mode           Mode.
+	 * @param string  $output_text    Output text.
+	 * @param integer $sleep_interval Sleep interval.
+	 * @param integer $exit_code      Exit code.
 	 *
 	 * @return Process
 	 */
-	protected function createProcess($argument)
+	protected function createProcess($mode, array $arguments)
 	{
-		if ( method_exists('Symfony\Component\Process\Process', 'escapeArgument') ) {
-			// This is preferred way.
-			$argument = array($argument);
+		$defaults = array(
+			'output_text' => '',
+			'sleep_interval' => 0,
+			'exit_code' => 0,
+		);
+		$arguments = array_merge($defaults, $arguments);
+
+		$command_line = array(
+			dirname(__DIR__) . '/wrapper.sh',
+			$mode,
+			$arguments['output_text'],
+			$arguments['sleep_interval'],
+			$arguments['exit_code'],
+		);
+
+		if ( !method_exists('Symfony\Component\Process\Process', 'escapeArgument') ) {
+			$command_line = implode(
+				' ',
+				array_map(array('Symfony\Component\Process\ProcessUtils', 'escapeArgument'), $command_line)
+			);
 		}
 
-		return new Process($argument);
+		return new Process($command_line);
 	}
 
 }
