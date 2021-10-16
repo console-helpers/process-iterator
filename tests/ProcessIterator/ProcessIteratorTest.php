@@ -12,26 +12,34 @@ namespace Tests\ConsoleHelpers\ProcessIterator;
 
 
 use ConsoleHelpers\ProcessIterator\ProcessIterator;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
+use Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 
-class ProcessIteratorTest extends \PHPUnit_Framework_TestCase
+class ProcessIteratorTest extends TestCase
 {
 
-	/**
-	 * @expectedException \InvalidArgumentException
-	 * @expectedExceptionMessage The $processes argument must be an array of non-running instances of "\Symfony\Component\Process\Process" class.
-	 */
+	use ExpectException;
+
 	public function testCreateWithNonProcess()
 	{
+		$this->expectException('InvalidArgumentException');
+
+		$message = 'The $processes argument must be an array of non-running instances of ';
+		$message .= '"\Symfony\Component\Process\Process" class.';
+		$this->expectExceptionMessage($message);
+
 		new ProcessIterator(array('test'));
 	}
 
-	/**
-	 * @expectedException \InvalidArgumentException
-	 * @expectedExceptionMessage The $processes argument must be an array of non-running instances of "\Symfony\Component\Process\Process" class.
-	 */
 	public function testCreateWithRunningProcess()
 	{
+		$this->expectException('InvalidArgumentException');
+
+		$message = 'The $processes argument must be an array of non-running instances of ';
+		$message .= '"\Symfony\Component\Process\Process" class.';
+		$this->expectExceptionMessage($message);
+
 		$process = new Process('sleep 1');
 		$process->start();
 
@@ -181,7 +189,8 @@ class ProcessIteratorTest extends \PHPUnit_Framework_TestCase
 		$processes = isset($existing_key) ? array($existing_key => $process1) : array($process1);
 		$iterator = new ProcessIterator($processes);
 
-		$this->setExpectedException('InvalidArgumentException', 'The "' . $add_key . '" key is already in use.');
+		$this->expectException('InvalidArgumentException');
+		$this->expectExceptionMessage('The "' . $add_key . '" key is already in use.');
 
 		$iterator->addProcess($process1, $add_key);
 	}
