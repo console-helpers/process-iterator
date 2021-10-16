@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "be3873e5e4779ed33dc5d7108e105ba8",
+    "content-hash": "945424b2b88bb08dd6cb03b0fc1038a0",
     "packages": [
         {
             "name": "symfony/process",
@@ -63,16 +63,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/aik099/CodingStandard.git",
-                "reference": "4b605a2fadc7f69bd89ee83a388d2965a0b34b0c"
+                "reference": "83cb77930598f434a6c2539415c9e21b6203d221"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aik099/CodingStandard/zipball/4b605a2fadc7f69bd89ee83a388d2965a0b34b0c",
-                "reference": "4b605a2fadc7f69bd89ee83a388d2965a0b34b0c",
+                "url": "https://api.github.com/repos/aik099/CodingStandard/zipball/83cb77930598f434a6c2539415c9e21b6203d221",
+                "reference": "83cb77930598f434a6c2539415c9e21b6203d221",
                 "shasum": ""
             },
             "require-dev": {
-                "squizlabs/php_codesniffer": "^3.0"
+                "squizlabs/php_codesniffer": "^3.0",
+                "yoast/phpunit-polyfills": "^1.0"
             },
             "type": "library",
             "extra": {
@@ -95,7 +96,7 @@
                 "PHP_CodeSniffer",
                 "codesniffer"
             ],
-            "time": "2020-01-14T16:30:17+00:00"
+            "time": "2021-10-16T14:41:58+00:00"
         },
         {
             "name": "doctrine/instantiator",

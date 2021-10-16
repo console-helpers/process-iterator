@@ -40,7 +40,7 @@ class ProcessIteratorTest extends TestCase
 		$message .= '"\Symfony\Component\Process\Process" class.';
 		$this->expectExceptionMessage($message);
 
-		$process = new Process('sleep 1');
+		$process = $this->createProcess('sleep 1');
 		$process->start();
 
 		new ProcessIterator(array($process));
@@ -50,8 +50,8 @@ class ProcessIteratorTest extends TestCase
 	{
 		/** @var Process[] $processes */
 		$processes = array(
-			new Process('exit 64'),
-			new Process('exit 0'),
+			$this->createProcess('exit 64'),
+			$this->createProcess('exit 0'),
 		);
 
 		$iterator = new ProcessIterator($processes);
@@ -73,8 +73,8 @@ class ProcessIteratorTest extends TestCase
 	{
 		/** @var Process[] $processes */
 		$processes = array(
-			new Process('exit 64'),
-			new Process('exit 0'),
+			$this->createProcess('exit 64'),
+			$this->createProcess('exit 0'),
 		);
 
 		$iterator = new ProcessIterator($processes, true);
@@ -103,8 +103,8 @@ class ProcessIteratorTest extends TestCase
 	{
 		/** @var Process[] $processes */
 		$processes = array(
-			new Process('echo "A"'),
-			new Process('echo "B"'),
+			$this->createProcess('echo "A"'),
+			$this->createProcess('echo "B"'),
 		);
 
 		$iterator = new ProcessIterator($processes, true);
@@ -125,9 +125,9 @@ class ProcessIteratorTest extends TestCase
 	{
 		/** @var Process[] $processes */
 		$processes = array(
-			new Process('echo 1; sleep 1'),
-			new Process('echo 2; sleep 1'),
-			new Process('echo 3; sleep 1'),
+			$this->createProcess('echo 1; sleep 1'),
+			$this->createProcess('echo 2; sleep 1'),
+			$this->createProcess('echo 3; sleep 1'),
 		);
 
 		$iterator = new ProcessIterator($processes);
@@ -148,8 +148,8 @@ class ProcessIteratorTest extends TestCase
 	 */
 	public function testAddProcessSuccess($in_key1, $out_key1, $output1, $in_key2, $out_key2, $output2)
 	{
-		$process1 = new Process('echo "' . $output1 . '"');
-		$process2 = new Process('echo "' . $output2 . '"');
+		$process1 = $this->createProcess('echo "' . $output1 . '"');
+		$process2 = $this->createProcess('echo "' . $output2 . '"');
 
 		$processes = isset($in_key1) ? array($in_key1 => $process1) : array($process1);
 		$iterator = new ProcessIterator($processes);
@@ -185,7 +185,7 @@ class ProcessIteratorTest extends TestCase
 	 */
 	public function testAddProcessFailure($existing_key, $add_key)
 	{
-		$process1 = new Process('echo "A"');
+		$process1 = $this->createProcess('echo "A"');
 		$processes = isset($existing_key) ? array($existing_key => $process1) : array($process1);
 		$iterator = new ProcessIterator($processes);
 
@@ -210,9 +210,9 @@ class ProcessIteratorTest extends TestCase
 	{
 		/** @var Process[] $processes */
 		$processes = array(
-			new Process('echo "A"; sleep 2'),
-			new Process('echo "B"; sleep 3'),
-			new Process('echo "C"; sleep 4'),
+			$this->createProcess('echo "A"; sleep 2'),
+			$this->createProcess('echo "B"; sleep 3'),
+			$this->createProcess('echo "C"; sleep 4'),
 		);
 
 		$iterator = new ProcessIterator($processes);
@@ -240,10 +240,10 @@ class ProcessIteratorTest extends TestCase
 	{
 		/** @var Process[] $processes */
 		$processes = array(
-			'A' => new Process('echo "A"; sleep 1'),
-			'B' => new Process('echo "B"; sleep 2'),
-			'C' => new Process('echo "C"; sleep 3'),
-			'D' => new Process('echo "D"; sleep 4'),
+			'A' => $this->createProcess('echo "A"; sleep 1'),
+			'B' => $this->createProcess('echo "B"; sleep 2'),
+			'C' => $this->createProcess('echo "C"; sleep 3'),
+			'D' => $this->createProcess('echo "D"; sleep 4'),
 		);
 
 		$iterator = new ProcessIterator($processes);
@@ -309,9 +309,9 @@ class ProcessIteratorTest extends TestCase
 	public function testFastestProcessReturnedFirst()
 	{
 		$processes = array(
-			new Process('sleep 3; echo "C"'),
-			new Process('sleep 2; echo "B"'),
-			new Process('sleep 1; echo "A"'),
+			$this->createProcess('sleep 3; echo "C"'),
+			$this->createProcess('sleep 2; echo "B"'),
+			$this->createProcess('sleep 1; echo "A"'),
 		);
 
 		$iterator = new ProcessIterator($processes);
@@ -330,10 +330,10 @@ class ProcessIteratorTest extends TestCase
 	 */
 	public function testTimeouts()
 	{
-		$long_process = new Process('sleep 20');
+		$long_process = $this->createProcess('sleep 20');
 		$long_process->setTimeout(1);
 
-		$normal_process = new Process('sleep 1');
+		$normal_process = $this->createProcess('sleep 1');
 
 		$iterator = new ProcessIterator(array('long' => $long_process, 'normal' => $normal_process));
 
@@ -348,6 +348,23 @@ class ProcessIteratorTest extends TestCase
 				$this->assertNull($iterator->getProcessException());
 			}
 		}
+	}
+
+	/**
+	 * Creates a process.
+	 *
+	 * @param $argument Argument.
+	 *
+	 * @return Process
+	 */
+	protected function createProcess($argument)
+	{
+		if ( method_exists('Symfony\Component\Process\Process', 'escapeArgument') ) {
+			// This is preferred way.
+			$argument = array($argument);
+		}
+
+		return new Process($argument);
 	}
 
 }
