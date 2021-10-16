@@ -12,27 +12,35 @@ namespace Tests\ConsoleHelpers\ProcessIterator;
 
 
 use ConsoleHelpers\ProcessIterator\ProcessIterator;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
+use Yoast\PHPUnitPolyfills\Polyfills\ExpectException;
 
-class ProcessIteratorTest extends \PHPUnit_Framework_TestCase
+class ProcessIteratorTest extends TestCase
 {
 
-	/**
-	 * @expectedException \InvalidArgumentException
-	 * @expectedExceptionMessage The $processes argument must be an array of non-running instances of "\Symfony\Component\Process\Process" class.
-	 */
+	use ExpectException;
+
 	public function testCreateWithNonProcess()
 	{
+		$this->expectException('InvalidArgumentException');
+
+		$message = 'The $processes argument must be an array of non-running instances of ';
+		$message .= '"\Symfony\Component\Process\Process" class.';
+		$this->expectExceptionMessage($message);
+
 		new ProcessIterator(array('test'));
 	}
 
-	/**
-	 * @expectedException \InvalidArgumentException
-	 * @expectedExceptionMessage The $processes argument must be an array of non-running instances of "\Symfony\Component\Process\Process" class.
-	 */
 	public function testCreateWithRunningProcess()
 	{
-		$process = new Process('sleep 1');
+		$this->expectException('InvalidArgumentException');
+
+		$message = 'The $processes argument must be an array of non-running instances of ';
+		$message .= '"\Symfony\Component\Process\Process" class.';
+		$this->expectExceptionMessage($message);
+
+		$process = $this->createProcess('SLEEP', array('sleep_interval' => 1));
 		$process->start();
 
 		new ProcessIterator(array($process));
@@ -42,8 +50,8 @@ class ProcessIteratorTest extends \PHPUnit_Framework_TestCase
 	{
 		/** @var Process[] $processes */
 		$processes = array(
-			new Process('exit 64'),
-			new Process('exit 0'),
+			$this->createProcess('EXIT', array('exit_code' => 64)),
+			$this->createProcess('EXIT', array('exit_code' => 0)),
 		);
 
 		$iterator = new ProcessIterator($processes);
@@ -65,8 +73,8 @@ class ProcessIteratorTest extends \PHPUnit_Framework_TestCase
 	{
 		/** @var Process[] $processes */
 		$processes = array(
-			new Process('exit 64'),
-			new Process('exit 0'),
+			$this->createProcess('EXIT', array('exit_code' => 64)),
+			$this->createProcess('EXIT', array('exit_code' => 0)),
 		);
 
 		$iterator = new ProcessIterator($processes, true);
@@ -95,8 +103,8 @@ class ProcessIteratorTest extends \PHPUnit_Framework_TestCase
 	{
 		/** @var Process[] $processes */
 		$processes = array(
-			new Process('echo "A"'),
-			new Process('echo "B"'),
+			$this->createProcess('OUTPUT', array('output_text' => 'A')),
+			$this->createProcess('OUTPUT', array('output_text' => 'B')),
 		);
 
 		$iterator = new ProcessIterator($processes, true);
@@ -117,9 +125,9 @@ class ProcessIteratorTest extends \PHPUnit_Framework_TestCase
 	{
 		/** @var Process[] $processes */
 		$processes = array(
-			new Process('echo 1; sleep 1'),
-			new Process('echo 2; sleep 1'),
-			new Process('echo 3; sleep 1'),
+			$this->createProcess('OUTPUT_AND_SLEEP', array('output_text' => '1', 'sleep_interval' => 1)),
+			$this->createProcess('OUTPUT_AND_SLEEP', array('output_text' => '2', 'sleep_interval' => 1)),
+			$this->createProcess('OUTPUT_AND_SLEEP', array('output_text' => '3', 'sleep_interval' => 1)),
 		);
 
 		$iterator = new ProcessIterator($processes);
@@ -140,8 +148,8 @@ class ProcessIteratorTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testAddProcessSuccess($in_key1, $out_key1, $output1, $in_key2, $out_key2, $output2)
 	{
-		$process1 = new Process('echo "' . $output1 . '"');
-		$process2 = new Process('echo "' . $output2 . '"');
+		$process1 = $this->createProcess('OUTPUT', array('output_text' => $output1));
+		$process2 = $this->createProcess('OUTPUT', array('output_text' => $output2));
 
 		$processes = isset($in_key1) ? array($in_key1 => $process1) : array($process1);
 		$iterator = new ProcessIterator($processes);
@@ -177,11 +185,12 @@ class ProcessIteratorTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testAddProcessFailure($existing_key, $add_key)
 	{
-		$process1 = new Process('echo "A"');
+		$process1 = $this->createProcess('OUTPUT', array('output_text' => 'A'));
 		$processes = isset($existing_key) ? array($existing_key => $process1) : array($process1);
 		$iterator = new ProcessIterator($processes);
 
-		$this->setExpectedException('InvalidArgumentException', 'The "' . $add_key . '" key is already in use.');
+		$this->expectException('InvalidArgumentException');
+		$this->expectExceptionMessage('The "' . $add_key . '" key is already in use.');
 
 		$iterator->addProcess($process1, $add_key);
 	}
@@ -201,9 +210,9 @@ class ProcessIteratorTest extends \PHPUnit_Framework_TestCase
 	{
 		/** @var Process[] $processes */
 		$processes = array(
-			new Process('echo "A"; sleep 2'),
-			new Process('echo "B"; sleep 3'),
-			new Process('echo "C"; sleep 4'),
+			$this->createProcess('OUTPUT_AND_SLEEP', array('output_text' => 'A', 'sleep_interval' => 2)),
+			$this->createProcess('OUTPUT_AND_SLEEP', array('output_text' => 'B', 'sleep_interval' => 3)),
+			$this->createProcess('OUTPUT_AND_SLEEP', array('output_text' => 'C', 'sleep_interval' => 4)),
 		);
 
 		$iterator = new ProcessIterator($processes);
@@ -231,10 +240,10 @@ class ProcessIteratorTest extends \PHPUnit_Framework_TestCase
 	{
 		/** @var Process[] $processes */
 		$processes = array(
-			'A' => new Process('echo "A"; sleep 1'),
-			'B' => new Process('echo "B"; sleep 2'),
-			'C' => new Process('echo "C"; sleep 3'),
-			'D' => new Process('echo "D"; sleep 4'),
+			'A' => $this->createProcess('OUTPUT_AND_SLEEP', array('output_text' => 'A', 'sleep_interval' => 1)),
+			'B' => $this->createProcess('OUTPUT_AND_SLEEP', array('output_text' => 'B', 'sleep_interval' => 2)),
+			'C' => $this->createProcess('OUTPUT_AND_SLEEP', array('output_text' => 'C', 'sleep_interval' => 3)),
+			'D' => $this->createProcess('OUTPUT_AND_SLEEP', array('output_text' => 'D', 'sleep_interval' => 4)),
 		);
 
 		$iterator = new ProcessIterator($processes);
@@ -300,9 +309,9 @@ class ProcessIteratorTest extends \PHPUnit_Framework_TestCase
 	public function testFastestProcessReturnedFirst()
 	{
 		$processes = array(
-			new Process('sleep 3; echo "C"'),
-			new Process('sleep 2; echo "B"'),
-			new Process('sleep 1; echo "A"'),
+			$this->createProcess('SLEEP_AND_OUTPUT', array('output_text' => 'C', 'sleep_interval' => 3)),
+			$this->createProcess('SLEEP_AND_OUTPUT', array('output_text' => 'B', 'sleep_interval' => 2)),
+			$this->createProcess('SLEEP_AND_OUTPUT', array('output_text' => 'A', 'sleep_interval' => 1)),
 		);
 
 		$iterator = new ProcessIterator($processes);
@@ -321,10 +330,10 @@ class ProcessIteratorTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testTimeouts()
 	{
-		$long_process = new Process('sleep 20');
+		$long_process = $this->createProcess('SLEEP', array('sleep_interval' => 20));
 		$long_process->setTimeout(1);
 
-		$normal_process = new Process('sleep 1');
+		$normal_process = $this->createProcess('SLEEP', array('sleep_interval' => 1));
 
 		$iterator = new ProcessIterator(array('long' => $long_process, 'normal' => $normal_process));
 
@@ -339,6 +348,43 @@ class ProcessIteratorTest extends \PHPUnit_Framework_TestCase
 				$this->assertNull($iterator->getProcessException());
 			}
 		}
+	}
+
+	/**
+	 * Creates a process.
+	 *
+	 * @param string  $mode           Mode.
+	 * @param string  $output_text    Output text.
+	 * @param integer $sleep_interval Sleep interval.
+	 * @param integer $exit_code      Exit code.
+	 *
+	 * @return Process
+	 */
+	protected function createProcess($mode, array $arguments)
+	{
+		$defaults = array(
+			'output_text' => '',
+			'sleep_interval' => 0,
+			'exit_code' => 0,
+		);
+		$arguments = array_merge($defaults, $arguments);
+
+		$command_line = array(
+			dirname(__DIR__) . '/wrapper.sh',
+			$mode,
+			$arguments['output_text'],
+			$arguments['sleep_interval'],
+			$arguments['exit_code'],
+		);
+
+		if ( !method_exists('Symfony\Component\Process\Process', 'escapeArgument') ) {
+			$command_line = implode(
+				' ',
+				array_map(array('Symfony\Component\Process\ProcessUtils', 'escapeArgument'), $command_line)
+			);
+		}
+
+		return new Process($command_line);
 	}
 
 }

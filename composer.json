@@ -10,11 +10,12 @@
 		}
 	],
 	"require": {
-		"php": ">=5.3.7",
-		"symfony/process": "^2.7|^3.0"
+		"php": ">=5.4",
+		"symfony/process": "^2.7|^3.0|^4.4|^5.3"
 	},
 	"require-dev": {
-		"aik099/coding-standard": "dev-master"
+		"aik099/coding-standard": "dev-master",
+		"yoast/phpunit-polyfills": "^1.0"
 	},
 	"autoload": {
 		"psr-4": {
