@@ -1,7 +1,7 @@
 # ProcessIterator
 
-[![Build Status](https://travis-ci.org/console-helpers/process-iterator.svg?branch=master)](https://travis-ci.org/console-helpers/process-iterator)
-[![Coverage Status](https://coveralls.io/repos/github/console-helpers/process-iterator/badge.svg?branch=master)](https://coveralls.io/github/console-helpers/process-iterator?branch=master)
+[![CI](https://github.com/console-helpers/process-iterator/actions/workflows/tests.yml/badge.svg)](https://github.com/console-helpers/process-iterator/actions/workflows/tests.yml)
+[![codecov](https://codecov.io/gh/console-helpers/process-iterator/branch/master/graph/badge.svg?token=8Grp7RYBO7)](https://codecov.io/gh/console-helpers/process-iterator)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/console-helpers/process-iterator/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/console-helpers/process-iterator/?branch=master)
 
 
